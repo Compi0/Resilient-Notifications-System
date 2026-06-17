@@ -1,4 +1,9 @@
-package com.tromfi.notifications.adapters.out;
+package com.tromfi.notifications.application.ports.out;
 
-public interface AduitRepository {
+
+public interface AuditRepository {
+
+    // NADA DE ANOTACIONES, solo declaracion de metodos
+
+
 }
