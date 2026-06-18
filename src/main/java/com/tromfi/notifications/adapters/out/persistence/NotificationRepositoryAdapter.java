@@ -7,6 +7,8 @@ import com.tromfi.notifications.domain.model.Notification;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @AllArgsConstructor
@@ -27,5 +29,20 @@ public class NotificationRepositoryAdapter implements NotificationRepository{
 
         return savedEntity.getId();
 
+    }
+
+    @Override
+    public List<Notification> findAllPendingNotifications() {
+
+        List<NotificationEntity> notificationEntities = springDataNotificationRepository.findAllPendingNotifications();
+        List<Notification> notifications = new ArrayList<>();
+
+        for (NotificationEntity notificationEntity : notificationEntities) {
+            notifications.add(notificationEntityMapper.toNotification(notificationEntity));
+        }
+
+        //Checar no este vacio
+
+        return notifications;
     }
 }
