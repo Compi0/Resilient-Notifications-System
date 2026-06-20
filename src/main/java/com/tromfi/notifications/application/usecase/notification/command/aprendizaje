@@ -1,0 +1,17 @@
+Esto es para que el DTO no pase directo al use case
+representa lo que la aplicación necesita para ejecutar un caso de uso
+
+Aqui convertir urgency de String en el DTO a MessageUrgency en el command es correcto. Eso es una adaptación de borde, y es buena práctica
+
+También ayuda porque el contrato externo y el interno no siempre deben ser iguales. Por ejemplo:
+el DTO puede tener nombres pensados para el API
+el command puede tener nombres pensados para el caso de uso
+el Ack puede devolver trackingId y status
+el response DTO puede formatear eso como el cliente espera
+O sea: aunque hoy se parezcan mucho, sigue teniendo sentido separarlos. Muchas veces al principio parecen duplicados, pero con el tiempo dejan de serlo.
+
+
+La separación DTO / Command / Ack no es solo para “acomodar campos”. Sirve para tres cosas importantes:
+adaptar el contrato externo al modelo interno
+fortalecer tipos antes de entrar al caso de uso
+evitar que REST dicte cómo se diseña la aplicación

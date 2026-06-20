@@ -1,6 +1,7 @@
-package com.tromfi.notifications.application.usecase;
+package com.tromfi.notifications.application.usecase.implementation;
 
 import com.tromfi.notifications.application.ports.out.NotificationRepository;
+import com.tromfi.notifications.application.usecase.interfaces.NotificationService;
 import com.tromfi.notifications.application.usecase.command.CreateNotificationCommand;
 import com.tromfi.notifications.application.usecase.result.NotificationAck;
 import com.tromfi.notifications.domain.model.Notification;
@@ -9,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
-public class NotificationOrchestrationServiceImpl implements NotificationOrchestrationService {
+public class NotificationServiceImpl implements NotificationService {
 
     // Se pone la interfaz, no la clase concreta, porque internamente se inyecta la clase concreta pero depende de la interfaz
     private final NotificationRepository notificationRepository;
@@ -22,10 +23,9 @@ public class NotificationOrchestrationServiceImpl implements NotificationOrchest
         Notification notification = Notification.createNotification(command.getContent(), command.getRecipient(),
                 command.getMessagingType(), command.getUrgency());
 
-        Long savedId = notificationRepository.save(notification);
+        Notification savedNotification = notificationRepository.save(notification);
 
-        NotificationAck notificationAck = new NotificationAck(savedId, "Test");
-
+        NotificationAck notificationAck = new NotificationAck(savedNotification.getId(), "Test");
 
 
         /*

@@ -1,0 +1,4 @@
+Esto es para que el usecase no regrese un DTO en especifico, si no una respuesta
+que el controlador va a mappear a DTO
+
+representa el resultado de negocio que la aplicación devuelve al adapter
