@@ -1,4 +1,4 @@
-package com.tromfi.notifications.application.usecase.interfaces;
+package com.tromfi.notifications.application.usecase.worker;
 
 public interface WorkerPollingService {
 

@@ -1,8 +1,7 @@
-package com.tromfi.notifications.application.usecase.implementation;
+package com.tromfi.notifications.application.usecase.worker;
 
 import com.tromfi.notifications.application.ports.out.NotificationRepository;
-import com.tromfi.notifications.application.usecase.interfaces.NotificationProcessingService;
-import com.tromfi.notifications.application.usecase.interfaces.WorkerPollingService;
+import com.tromfi.notifications.application.usecase.notification.NotificationProcessingService;
 import com.tromfi.notifications.domain.model.Notification;
 import lombok.AllArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
