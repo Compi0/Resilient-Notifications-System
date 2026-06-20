@@ -1,4 +1,4 @@
-package com.tromfi.notifications.application.usecase.command;
+package com.tromfi.notifications.application.usecase.notification.command;
 
 import com.tromfi.notifications.domain.model.enums.MessageTypes;
 import com.tromfi.notifications.domain.model.enums.MessageUrgency;

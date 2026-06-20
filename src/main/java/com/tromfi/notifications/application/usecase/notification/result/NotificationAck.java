@@ -1,4 +1,4 @@
-package com.tromfi.notifications.application.usecase.result;
+package com.tromfi.notifications.application.usecase.notification.result;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

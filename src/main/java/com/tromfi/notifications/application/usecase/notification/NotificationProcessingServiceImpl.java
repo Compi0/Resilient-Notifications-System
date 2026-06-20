@@ -1,7 +1,7 @@
-package com.tromfi.notifications.application.usecase.implementation;
+package com.tromfi.notifications.application.usecase.notification;
 
+import com.tromfi.notifications.adapters.out.MockMessageService;
 import com.tromfi.notifications.application.ports.out.NotificationRepository;
-import com.tromfi.notifications.application.usecase.interfaces.NotificationProcessingService;
 import com.tromfi.notifications.domain.exception.InvalidFieldsException;
 import com.tromfi.notifications.domain.model.Notification;
 import com.tromfi.notifications.domain.service.ProcessNotificationService;
@@ -17,6 +17,9 @@ public class NotificationProcessingServiceImpl implements NotificationProcessing
     private final ProcessNotificationService processNotificationService;
     private final NotificationRepository notificationRepository;
 
+    // Esto se va a cambiar para que se adapte a hexagonal bien con la interfaz y adapter y todo
+    private final MockMessageService mockMessageService;
+
     @Override
     @Async(value = "backgroundTaskExecutor")
     @Transactional // Aqui falta poner toda la configuracion
@@ -26,28 +29,27 @@ public class NotificationProcessingServiceImpl implements NotificationProcessing
         boolean savedId = processNotificationService.validateNotification(notification);
 
         if (!savedId) {
-            throw new InvalidFieldsException("Invalid notification");
+            notification.markFailed(); // Se debe de guardar
+            processNotificationService.sendToDeadQueue(notification);
+            notificationRepository.save(notification);
+
+            // Tener cuidado con esta excepcion porque puede generar rollback sin guardar el estado actualizado
+            throw new InvalidFieldsException("Invalid notification processing");
         }
 
-        /*
+        notification.markProcessing();
 
-        Aqui ya se obtiene una notification valida para procesar, pero puede que este bien checar
-        que en realidad si esta lista para procesar
+        boolean isSent = mockMessageService.sendMessage(notification);
 
-        Si es valida, entonces se debe de llamar al servicio externo y esperar la respuesta que puede ser 2
+        Notification processedNotification;
 
-       1. Valida, entonces se cambia el valor de la notificacion
-        - Actualizar BD
-       2. Se rechaza, hace los cambios pertinentes para ver si se vuelve a intentar
-        - Actualizar BD
-       3. Aqui tambien se llamaria el loggin y se haria algo probablemente
+        if(!isSent){
+            processedNotification = processNotificationService.rejectNotification(notification);
+        }else{
+            processedNotification = processNotificationService.acceptNotification(notification);
+        }
 
-         */
-
-
-        // Despues de todo el procedimiento actualizamos
-
-        Notification savedIdNotification = notificationRepository.save(notification);
+        Notification savedNotification = notificationRepository.save(processedNotification);
 
         // Podemos hacer alguna verificacion
 
