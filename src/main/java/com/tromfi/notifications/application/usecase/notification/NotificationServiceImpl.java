@@ -1,9 +1,8 @@
-package com.tromfi.notifications.application.usecase.implementation;
+package com.tromfi.notifications.application.usecase.notification;
 
 import com.tromfi.notifications.application.ports.out.NotificationRepository;
-import com.tromfi.notifications.application.usecase.interfaces.NotificationService;
-import com.tromfi.notifications.application.usecase.command.CreateNotificationCommand;
-import com.tromfi.notifications.application.usecase.result.NotificationAck;
+import com.tromfi.notifications.application.usecase.notification.command.CreateNotificationCommand;
+import com.tromfi.notifications.application.usecase.notification.result.NotificationAck;
 import com.tromfi.notifications.domain.model.Notification;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
