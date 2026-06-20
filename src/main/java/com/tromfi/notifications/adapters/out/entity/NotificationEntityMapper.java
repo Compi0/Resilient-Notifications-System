@@ -1,6 +1,7 @@
 package com.tromfi.notifications.adapters.out.entity;
 
 import com.tromfi.notifications.domain.model.Notification;
+import com.tromfi.notifications.domain.model.enums.MessageStatus;
 import com.tromfi.notifications.domain.model.enums.MessageTypes;
 import com.tromfi.notifications.domain.model.enums.MessageUrgency;
 import org.springframework.stereotype.Component;
@@ -11,6 +12,7 @@ public class NotificationEntityMapper {
     public NotificationEntity toNotificationEntity(Notification domain) {
         NotificationEntity entity = new NotificationEntity();
 
+        entity.setId(domain.getId());
         entity.setContent(domain.getContent());
         entity.setAttemptCount(domain.getAttemptCount());
         entity.setRecipient(domain.getRecipient());
@@ -29,13 +31,20 @@ public class NotificationEntityMapper {
 
     public Notification toNotification(NotificationEntity domain) {
 
-        //MessageUrgency messageUrgency = ;
-
-
         //TODO No usarlo para crear una nueva notificacion, si no parea rehidratarlo. Nuevo metodo
-        Notification notification = Notification.fromPersistence();
 
-        return notification;
+        return Notification.fromPersistence(
+                domain.getId(),
+                domain.getContent(),
+                domain.getAttemptCount(),
+                domain.getRecipient(),
+                MessageTypes.valueOf(domain.getMessageTypes()),
+                MessageStatus.valueOf(domain.getMessageStatus()),
+                MessageUrgency.valueOf(domain.getMessageUrgency()),
+                domain.getCreatedAt(),
+                domain.getUpdatedAt(),
+                domain.getNextAttemptAt()
+        );
     }
 
 }
