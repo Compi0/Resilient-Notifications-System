@@ -1,10 +1,8 @@
 package com.tromfi.notifications.adapters.in.rest.mapper;
 
 import com.tromfi.notifications.adapters.in.rest.dto.NotificationRequestDTO;
-import com.tromfi.notifications.application.usecase.command.CreateNotificationCommand;
-import com.tromfi.notifications.domain.model.Notification;
+import com.tromfi.notifications.application.usecase.notification.command.CreateNotificationCommand;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 @Mapper

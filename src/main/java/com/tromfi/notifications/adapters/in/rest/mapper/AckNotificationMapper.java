@@ -1,7 +1,7 @@
 package com.tromfi.notifications.adapters.in.rest.mapper;
 
 import com.tromfi.notifications.adapters.in.rest.dto.NotificationResponseDTO;
-import com.tromfi.notifications.application.usecase.result.NotificationAck;
+import com.tromfi.notifications.application.usecase.notification.result.NotificationAck;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
