@@ -1,5 +1,6 @@
-package com.tromfi.notifications.adapters.out.entity;
+package com.tromfi.notifications.adapters.out.entity.mapper;
 
+import com.tromfi.notifications.adapters.out.entity.NotificationEntity;
 import com.tromfi.notifications.domain.model.Notification;
 import com.tromfi.notifications.domain.model.enums.MessageStatus;
 import com.tromfi.notifications.domain.model.enums.MessageTypes;

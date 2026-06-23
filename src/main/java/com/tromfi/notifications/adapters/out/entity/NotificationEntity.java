@@ -3,19 +3,20 @@ package com.tromfi.notifications.adapters.out.entity;
 import com.tromfi.notifications.domain.model.enums.MessageStatus;
 import com.tromfi.notifications.domain.model.enums.MessageTypes;
 import com.tromfi.notifications.domain.model.enums.MessageUrgency;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
 public class NotificationEntity {
 
     @Id
@@ -34,5 +35,9 @@ public class NotificationEntity {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime nextAttemptAt;
+
+    public NotificationEntity(Long id) {
+        this.id = id;
+    }
 
 }
