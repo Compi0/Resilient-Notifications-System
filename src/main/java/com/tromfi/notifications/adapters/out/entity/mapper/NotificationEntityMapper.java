@@ -31,8 +31,6 @@ public class NotificationEntityMapper {
 
     public Notification toNotification(NotificationEntity domain) {
 
-        //TODO No usarlo para crear una nueva notificacion, si no parea rehidratarlo. Nuevo metodo
-
         return Notification.fromPersistence(
                 domain.getId(),
                 domain.getContent(),
