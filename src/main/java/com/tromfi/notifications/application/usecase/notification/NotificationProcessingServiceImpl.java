@@ -1,8 +1,7 @@
 package com.tromfi.notifications.application.usecase.notification;
 
-import com.tromfi.notifications.adapters.out.MockMessageService;
+import com.tromfi.notifications.application.ports.out.MessageSender;
 import com.tromfi.notifications.application.ports.out.NotificationRepository;
-import com.tromfi.notifications.domain.exception.InvalidFieldsException;
 import com.tromfi.notifications.domain.model.Notification;
 import com.tromfi.notifications.domain.service.ProcessNotificationService;
 import lombok.AllArgsConstructor;
@@ -16,9 +15,7 @@ public class NotificationProcessingServiceImpl implements NotificationProcessing
 
     private final ProcessNotificationService processNotificationService;
     private final NotificationRepository notificationRepository;
-
-    // Esto se va a cambiar para que se adapte a hexagonal bien con la interfaz y adapter y todo
-    private final MockMessageService mockMessageService;
+    private final MessageSender mockMessageService;
 
     @Override
     @Async(value = "backgroundTaskExecutor")
@@ -34,25 +31,48 @@ public class NotificationProcessingServiceImpl implements NotificationProcessing
             notificationRepository.save(notification);
 
             // Tener cuidado con esta excepcion porque puede generar rollback sin guardar el estado actualizado
-            throw new InvalidFieldsException("Invalid notification processing");
+            // Por ahora solo se hace return pero en un futuro habilitamos la excepcion
+            return;
+            //throw new InvalidFieldsException("Invalid notification processing");
         }
 
-        notification.markProcessing();
+        /*
 
-        boolean isSent = mockMessageService.sendMessage(notification);
+         Falta checar el estado actual de la BD, de la notificacion actual, por eso tiene sentido usar obtainedNotification
+         Porque dos hilos pueden obtener el mismo notification, pero tal vez ya se cambio en la BD, entonces no tiene sentido
+         Checar el viejo cuando se tiene el nuevo/actualizado, por eso se usa el obatinedNotification
+
+        Si ya está SENT, FAILED, PROCESSING por otro flujo, o su nextAttemptAt todavía no toca, simplemente sales sin hacer nada.
+        Eso es lo que significa “revalidar después del lock”.
+         */
+
+        Long currentId = notification.getId();
+
+        // Aqui ya hacemos el locking
+        Notification lockedNotification = notificationRepository.findByIdForUpdate(currentId);
+
+        if(!lockedNotification.isEligibleForProcessing()){
+            return; // No tiene caso seguir porque ya fue procesado por un hilo anterior
+        }
+
+        // Aqui se puede hacer el flush, pero puede ser mas complicado??
+        lockedNotification.markProcessing();
+        // Aqui ya se marca en processing, pero si no se hace el commit entonces no se observan cambios en la BD
+        // En tiempo, real, esto es esperado o tenemos que modificarlo?
+
+        boolean isSent = mockMessageService.sendMessage(lockedNotification);
 
         Notification processedNotification;
 
         if(!isSent){
-            processedNotification = processNotificationService.rejectNotification(notification);
+            processedNotification = processNotificationService.rejectNotification(lockedNotification);
         }else{
-            processedNotification = processNotificationService.acceptNotification(notification);
+            processedNotification = processNotificationService.acceptNotification(lockedNotification);
         }
 
-        Notification savedNotification = notificationRepository.save(processedNotification);
+        notificationRepository.save(processedNotification);
 
         // Podemos hacer alguna verificacion
-
 
     }
 
