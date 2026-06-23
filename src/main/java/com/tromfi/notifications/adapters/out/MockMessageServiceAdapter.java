@@ -1,11 +1,13 @@
 package com.tromfi.notifications.adapters.out;
 
+import com.tromfi.notifications.application.ports.out.MessageSender;
 import com.tromfi.notifications.domain.model.Notification;
 import org.springframework.stereotype.Service;
 
 @Service
-public class MockMessageService {
+public class MockMessageServiceAdapter implements MessageSender {
 
+    @Override
     public boolean sendMessage(Notification notification) {
 
 
