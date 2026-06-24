@@ -1,8 +1,11 @@
 package com.tromfi.notifications.adapters.out.persistence;
 
 import com.tromfi.notifications.adapters.out.entity.NotificationEntity;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -21,4 +24,11 @@ public interface SpringDataNotificationRepository extends JpaRepository<Notifica
             nativeQuery = true
     )
     List<NotificationEntity> findAllPendingNotifications();
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE) // Esto se traduce en el for update
+    @Query(
+            value = "SELECT n FROM NotificationEntity n WHERE n.id = :id"
+    ) // Inclusive podria no necesitarse esta query, porque el @Lock ya se encarga de hacer la query por ti + Hibernate
+    //@QueryHints({}) Checar esto porque esto puede ayudar a las Exceptions
+    NotificationEntity findByIdForUpdate(Long id);
 }

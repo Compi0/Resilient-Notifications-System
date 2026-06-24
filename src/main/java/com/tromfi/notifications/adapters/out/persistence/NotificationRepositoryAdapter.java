@@ -1,7 +1,7 @@
 package com.tromfi.notifications.adapters.out.persistence;
 
 import com.tromfi.notifications.adapters.out.entity.NotificationEntity;
-import com.tromfi.notifications.adapters.out.entity.NotificationEntityMapper;
+import com.tromfi.notifications.adapters.out.entity.mapper.NotificationEntityMapper;
 import com.tromfi.notifications.application.ports.out.NotificationRepository;
 import com.tromfi.notifications.domain.model.Notification;
 import lombok.AllArgsConstructor;
@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @AllArgsConstructor
 @Component // Aqui se debe de volver a usar algo como Repository, porque en si no se implemea lo de SpringDataRepository, si no Spring no lo encuentra
@@ -20,14 +19,13 @@ public class NotificationRepositoryAdapter implements NotificationRepository{
 
 
     @Override
-    public Long save(Notification notification) {
+    public Notification save(Notification notification) {
 
         NotificationEntity notificationEntity = notificationEntityMapper.toNotificationEntity(notification);
 
-        // Usar Optional para checar esto
         NotificationEntity savedEntity = springDataNotificationRepository.save(notificationEntity);
 
-        return savedEntity.getId();
+        return notificationEntityMapper.toNotification(savedEntity);
 
     }
 
@@ -44,5 +42,13 @@ public class NotificationRepositoryAdapter implements NotificationRepository{
         //Checar no este vacio
 
         return notifications;
+    }
+
+    @Override
+    public Notification findByIdForUpdate(Long id) {
+
+        NotificationEntity notificationEntity = springDataNotificationRepository.findByIdForUpdate(id);
+
+        return notificationEntityMapper.toNotification(notificationEntity);
     }
 }
