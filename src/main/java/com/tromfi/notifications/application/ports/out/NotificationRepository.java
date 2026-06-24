@@ -4,13 +4,18 @@ package com.tromfi.notifications.application.ports.out;
 import com.tromfi.notifications.domain.model.Notification;
 
 import java.util.List;
+import java.util.Optional;
 
 // Aqui yo defino lo que NECESITO, unicamente
 public interface NotificationRepository  {
 
     // NADA DE ANOTACIONES, solo declaracion de metodos
-    Long save(Notification notification);
+    Notification save(Notification notification);
 
     List<Notification> findAllPendingNotifications();
+
+    //Long update(Notification notification);
+
+    Notification findByIdForUpdate(Long id);
 
 }

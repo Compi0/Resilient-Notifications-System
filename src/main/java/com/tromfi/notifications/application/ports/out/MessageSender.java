@@ -6,6 +6,6 @@ import com.tromfi.notifications.domain.model.Notification;
 // Pero esto no, porque son los metodos que debe de tener para funcionar correctamente
 public interface MessageSender {
 
-    boolean sendMessage(Notification notification);
+    MessageSendResult sendMessage(Notification notification);
 
 }
