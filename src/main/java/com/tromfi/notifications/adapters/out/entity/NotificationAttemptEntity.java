@@ -1,7 +1,5 @@
 package com.tromfi.notifications.adapters.out.entity;
 
-import com.tromfi.notifications.domain.model.enums.AuditState;
-import com.tromfi.notifications.domain.model.enums.ProviderMessage;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

@@ -4,7 +4,6 @@ package com.tromfi.notifications.application.ports.out;
 import com.tromfi.notifications.domain.model.Notification;
 
 import java.util.List;
-import java.util.Optional;
 
 // Aqui yo defino lo que NECESITO, unicamente
 public interface NotificationRepository  {
