@@ -20,4 +20,8 @@ con solo id, pero debe quedar seteado notificationEntity, porque de ahí sale el
      */
     //List<NotificationAttemptEntity> findByNotificationEntityId(Long notificationId); <- Es lo mismo que arriba
 
+    @Query(value = "SELECT COUNT(*) FROM notification_attempt_entity u WHERE u.fk_notification_id = :id",
+            nativeQuery = true)
+    int obtainAttempts(Long id);
+
 }
