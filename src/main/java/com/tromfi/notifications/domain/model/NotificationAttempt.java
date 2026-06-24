@@ -3,10 +3,12 @@ package com.tromfi.notifications.domain.model;
 import com.tromfi.notifications.domain.model.enums.AuditState;
 import com.tromfi.notifications.domain.model.enums.ProviderMessage;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
 @Getter
+@ToString
 public class NotificationAttempt {
 
     private Long id;
@@ -19,7 +21,8 @@ public class NotificationAttempt {
     private NotificationAttempt(){}
 
     public static NotificationAttempt createNotificationAttempt(
-            Long notificationId, ProviderMessage providerMessage, String providerErrorCode,  AuditState status
+            Long notificationId, ProviderMessage providerMessage, String providerErrorCode,  AuditState status,
+            LocalDateTime timestampAttempt
     ){
         NotificationAttempt notificationAttempt = new NotificationAttempt();
 
@@ -28,7 +31,7 @@ public class NotificationAttempt {
         notificationAttempt.providerMessage = providerMessage;
         notificationAttempt.providerErrorCode = providerErrorCode;
         notificationAttempt.status = status;
-        notificationAttempt.timestampAttempt = LocalDateTime.now();
+        notificationAttempt.timestampAttempt = timestampAttempt;
 
         return notificationAttempt;
     }

@@ -116,8 +116,13 @@ public class Notification {
 
 
     public boolean isRetryingAvailable(){
-        // TODO Primero hay que validar null, luego vacío.
-        return (this.messageStatus == MessageStatus.PROCESSING || this.messageStatus == MessageStatus.RETRYING)
+
+        if(this.messageStatus == null || this.attemptCount < 0 || this.nextAttemptAt == null){
+            throw new  InvalidFieldsException("Invalid Notification Status");
+        }
+
+        // Checar lo del processing, porque aqui funcionaria pero no se si conceptualmente este bien
+        return (this.messageStatus == MessageStatus.RETRYING || this.messageStatus == MessageStatus.PENDING)
                 && this.attemptCount <= this.MAX_ATTEMPTS &&
                 this.nextAttemptAt.isBefore(LocalDateTime.now());
     }
@@ -137,6 +142,11 @@ public class Notification {
     public void markProcessing(){
         this.messageStatus = MessageStatus.PROCESSING;
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public boolean isEligibleForProcessing(){
+        return this.attemptCount <= this.MAX_ATTEMPTS && (this.messageStatus == MessageStatus.RETRYING
+                ||  this.messageStatus == MessageStatus.PENDING) && this.nextAttemptAt.isBefore(LocalDateTime.now());
     }
 
     // Mejor que actualizar el timestamp sea interno a todo esto, porque si no podria ser como un setter disfrazado
