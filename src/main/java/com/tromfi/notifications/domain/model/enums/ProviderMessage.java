@@ -4,5 +4,6 @@ public enum ProviderMessage {
     CONNECTION_ERROR,
     TIMEOUT,
     INVALID_RECIPIENT,
-    PROVIDER_500
+    PROVIDER_500,
+    SUCCESS
 }
