@@ -1,96 +1,51 @@
 package com.tromfi.notifications.application.usecase.notification;
 
 import com.tromfi.notifications.application.ports.out.MessageSender;
-import com.tromfi.notifications.application.ports.out.NotificationAttemptRepository;
-import com.tromfi.notifications.application.ports.out.NotificationRepository;
 import com.tromfi.notifications.application.ports.out.MessageSendResult;
 import com.tromfi.notifications.domain.model.Notification;
-import com.tromfi.notifications.domain.model.NotificationAttempt;
-import com.tromfi.notifications.domain.model.enums.AuditState;
-import com.tromfi.notifications.domain.service.ProcessNotificationService;
 import lombok.AllArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @AllArgsConstructor
 public class NotificationProcessingServiceImpl implements NotificationProcessingService {
 
-    private final ProcessNotificationService processNotificationService;
-    private final NotificationRepository notificationRepository;
     private final MessageSender mockMessageService;
-    private final NotificationAttemptRepository notificationAttemptRepository;
+    private final NotificationTransactionServiceImpl notificationDatabaseHandlingImpl;
 
+    // Este va a ser el metodo principal ahora
     @Override
     @Async(value = "backgroundTaskExecutor")
-    @Transactional // Aqui falta poner toda la configuracion
-    public void processNotification(Notification notification) {
+    public void processNotification(Notification notification) throws InterruptedException {
 
-        boolean savedId = processNotificationService.validateNotification(notification);
+        Notification lockedNotification = notificationDatabaseHandlingImpl.obtainAndLockRecord(notification);
 
-        if (!savedId) {
-            notification.markFailed(); // Se debe de guardar
-            processNotificationService.sendToDeadQueue(notification);
-            notificationRepository.save(notification);
-            System.out.println(Thread.currentThread().getName() + ": Failed Processing Notification");
-            // Tener cuidado con esta excepcion porque puede generar rollback sin guardar el estado actualizado
-            // Por ahora solo se hace return pero en un futuro habilitamos la excepcion
+        // Supongo que aqui requiere aun un mejor manejo de los estados y transacciones, porque si pasa algo
+        // en el servicio externo, se necesita terminar la transaccion y desbloquear la row que se hizo al inicio
+        if  (lockedNotification == null) {
             return;
-            //throw new InvalidFieldsException("Invalid notification processing");
         }
-
-
-
-        /*
-
-         Falta checar el estado actual de la BD, de la notificacion actual, por eso tiene sentido usar obtainedNotification
-         Porque dos hilos pueden obtener el mismo notification, pero tal vez ya se cambio en la BD, entonces no tiene sentido
-         Checar el viejo cuando se tiene el nuevo/actualizado, por eso se usa el obatinedNotification
-
-        Si ya está SENT, FAILED, PROCESSING por otro flujo, o su nextAttemptAt todavía no toca, simplemente sales sin hacer nada.
-        Eso es lo que significa “revalidar después del lock”.
-         */
-
-        Long currentId = notification.getId();
-
-        // Aqui ya hacemos el locking
-        Notification lockedNotification = notificationRepository.findByIdForUpdate(currentId);
-
-        if(!lockedNotification.isEligibleForProcessing()){
-            return; // No tiene caso seguir porque ya fue procesado por un hilo anterior
-        }
-
-        System.out.println(Thread.currentThread().getName() + ":Processing Notification");
-
-        // Aqui se puede hacer el flush, pero puede ser mas complicado??
-        lockedNotification.markProcessing();
-        // Aqui ya se marca en processing, pero si no se hace el commit entonces no se observan cambios en la BD
-        // En tiempo, real, esto es esperado o tenemos que modificarlo?
-
+//        CompletableFuture<MessageSendResult> messageSendResultFuture = executeServiceMessage(lockedNotification);
         MessageSendResult messageSendResult = mockMessageService.sendMessage(lockedNotification);
-        // Pero necesito un mapper para que pase los enums
 
-        Notification processedNotification = messageSendResult.status().equals(AuditState.SUCCESS) ?
-                processNotificationService.acceptNotification(lockedNotification)
-            : processNotificationService.rejectNotification(lockedNotification);
+        // Ver la forma correcta de obtener el resultado del mensaje para hacer la ultima ejecucion, no se puede hacer como una pausa hasta que se obtenga?
+
+        notificationDatabaseHandlingImpl.persistInformationDB(messageSendResult,  lockedNotification);
+
+    }
 
 
-        NotificationAttempt notificationAttempt = NotificationAttempt.createNotificationAttempt(processedNotification.getId(),
-                messageSendResult.providerMessage(), messageSendResult.providerErrorCode(),
-                messageSendResult.status(), processedNotification.getUpdatedAt());
+    // Para el rate limiter y la llamada a la API y que no quede bloqueado el servicio de la BD con transacciones
+    public CompletableFuture<MessageSendResult> executeServiceMessage(Notification lockedNotification) throws InterruptedException {
 
-        System.out.println(Thread.currentThread().getName() + ": Is processing" + notificationAttempt.toString());
+        //CompletableFuture<MessageSendResult> future = mockMessageService.sendMessage(lockedNotification);
+        // Probablemente el servicio externo pueda lanzar excepcion, entonces aqui se cachan para que se pueda persistir correctamente
 
-        if(messageSendResult.status() == AuditState.PERMANENT_FAILURE){
-            processedNotification.markFailed();
-        }
-
-        notificationAttemptRepository.save(notificationAttempt);
-        notificationRepository.save(processedNotification);
-
-        // Podemos hacer alguna verificacion
-
+        //return future; <- Esto se va a cambiar porque debemos de usar el Timeout, que sera un future
+        return null;
     }
 
 }

@@ -4,6 +4,6 @@ import com.tromfi.notifications.domain.model.Notification;
 
 public interface NotificationProcessingService {
 
-    void processNotification(Notification notification);
+    void processNotification(Notification notification) throws InterruptedException;
 
 }

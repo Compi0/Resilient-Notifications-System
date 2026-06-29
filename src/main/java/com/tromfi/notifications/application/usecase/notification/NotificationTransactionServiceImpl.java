@@ -13,13 +13,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @AllArgsConstructor
-public class NotificationDatabaseHandlingImpl {
+public class NotificationTransactionServiceImpl implements NotificationTransactionService {
 
     private final NotificationRepository notificationRepository;
     private final NotificationAttemptRepository notificationAttemptRepository;
     private final ProcessNotificationService processNotificationService;
 
 
+    @Override
     @Transactional // Este debe de ser para bloquear la transaccion
     public Notification obtainAndLockRecord(Notification notification) {
 
@@ -50,6 +51,8 @@ public class NotificationDatabaseHandlingImpl {
         return lockedNotification;
     }
 
+
+    @Override
     @Transactional
     public void persistInformationDB(MessageSendResult messageSendResult, Notification lockedNotification) {
 
