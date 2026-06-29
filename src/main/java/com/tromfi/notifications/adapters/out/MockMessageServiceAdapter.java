@@ -13,8 +13,14 @@ import java.util.concurrent.ThreadLocalRandom;
 public class MockMessageServiceAdapter implements MessageSender {
 
     @Override
-    public MessageSendResult sendMessage(Notification notification) {
+    public MessageSendResult sendMessage(Notification notification) throws InterruptedException {
 
+        MessageSendResult messageSendResult = mockSendMessage(notification);
+
+        return messageSendResult;
+    }
+
+    private MessageSendResult mockSendMessage(Notification notification) throws InterruptedException{
         MessageSendResult messageSendResult = null;
 
         int randomNum = ThreadLocalRandom.current().nextInt(1, 4 + 1);
@@ -27,6 +33,7 @@ public class MockMessageServiceAdapter implements MessageSender {
         }else if(randomNum == 2){
             // Aqui sera timeout (Despues lo implementamos para que sea timeout para medir la resiliencia)
             System.out.println(Thread.currentThread().getName() + ": Is timeout");
+            //Thread.sleep(4000);
             messageSendResult = new MessageSendResult(ProviderMessage.TIMEOUT, "408", AuditState.TIMEOUT);
 
         }else if(randomNum == 3){
