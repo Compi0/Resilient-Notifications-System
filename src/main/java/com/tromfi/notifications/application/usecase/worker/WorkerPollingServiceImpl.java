@@ -20,7 +20,7 @@ public class WorkerPollingServiceImpl implements WorkerPollingService {
     // Aqui void checar porque, tiene que ver con los workers
     @Override
     @Scheduled(fixedRate = 60000)
-    public void obtainNotifications() {
+    public void obtainNotifications() throws InterruptedException {
 
         List<Notification> pendingNotifications = notificationRepository.findAllPendingNotifications();
 
