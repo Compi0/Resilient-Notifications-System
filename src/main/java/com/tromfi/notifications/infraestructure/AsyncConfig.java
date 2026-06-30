@@ -23,4 +23,18 @@ public class AsyncConfig {
         return executor;
     }
 
+
+    @Bean(name = "providerExecutor")
+    public Executor limiterExecutor(){
+        System.out.println("Provider executor started");
+
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(5);
+        executor.setQueueCapacity(30);
+        executor.setThreadNamePrefix("RL-");
+        executor.initialize();
+        return executor;
+    }
+
 }
